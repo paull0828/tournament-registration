@@ -1,0 +1,72 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player Registration - SPL 2025</title>
+    <link rel="stylesheet" href="regStyles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="title">Register for SPL 2025</h1>
+      <form id="playerForm" class="registration-form">
+        <input type="text" id="firstName" placeholder="First Name" required />
+        <input type="text" id="lastName" placeholder="Last Name" required />
+        <input type="text" id="nickName" placeholder="Nick Name" required />
+        <input
+          type="tel"
+          id="phone"
+          placeholder="Phone Number"
+          required
+          pattern="[0-9]{10}"
+        />
+        <select id="playerType" required>
+          <option value="">-- Player Type --</option>
+          <option value="batsman">Batsman</option>
+          <option value="bowler">Bowler</option>
+          <option value="allrounder">All-Rounder</option>
+        </select>
+
+        <select id="role" required>
+          <option value="">-- Registering As --</option>
+          <option value="player">Player</option>
+          <option value="owner">Owner</option>
+        </select>
+
+        <select id="paymentMethod" required>
+          <option value="">-- Payment Method --</option>
+          <option value="online">Online</option>
+          <option value="offline">Offline</option>
+        </select>
+
+        <img
+          id="qrImage"
+          class="qr-code"
+          src="../WhatsApp Image 2025-05-15 at 03.22.58_94f99d11.jpg"
+          alt="Scan QR to Pay"
+        />
+        <a
+          id="downloadQR"
+          href="../WhatsApp Image 2025-05-15 at 03.22.58_94f99d11.jpg"
+          download="SPL_QR_Code.jpg"
+          class="download-btn"
+        >
+          Download QR Code
+        </a>
+
+        <input
+          type="file"
+          id="receiptUpload"
+          class="receipt-upload"
+          accept="image/*"
+        />
+
+        <button type="submit">Submit</button>
+        <p id="successMsg" class="success-message"></p>
+      </form>
+
+      <a href="index.html" class="register-btn">Poster</a>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

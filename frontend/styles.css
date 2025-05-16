@@ -1,0 +1,106 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #005e6b;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.poster {
+  background: #007f8c;
+  border-radius: 15px;
+  padding: 30px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #fff;
+}
+h2 {
+  font-size: 1.5rem;
+  color: #ffd700;
+  margin-bottom: 30px;
+}
+.fees p {
+  font-size: 1.1rem;
+  margin: 10px 0;
+}
+.icon {
+  font-weight: bold;
+  margin-right: 8px;
+}
+.prizes {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 30px 0;
+}
+.prize {
+  width: 30%;
+}
+.amount {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+.cricket-ball {
+  font-size: 2rem;
+}
+.trophy {
+  font-size: 2rem;
+  color: gold;
+}
+.rules-heading {
+  font-size: 1.3rem;
+  color: #ffd700;
+  margin-bottom: 15px;
+}
+.rules {
+  text-align: left;
+  margin: 0 auto 20px;
+  padding: 0 20px;
+}
+.rules li {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+.location {
+  font-size: 1.1rem;
+  margin-top: 20px;
+}
+.pin {
+  margin-right: 8px;
+}
+.register-btn {
+  display: inline-block;
+  margin-top: 25px;
+  padding: 12px 24px;
+  background-color: #ffd700;
+  color: #000;
+  font-weight: bold;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.register-btn:hover {
+  background-color: #e6c200;
+}
+
+.admin-btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #333;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+.admin-btn:hover {
+  background-color: #555;
+}
