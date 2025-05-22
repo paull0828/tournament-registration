@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - User List</title>
+    <link rel="stylesheet" href="adminStyles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Registered Players</h1>
+      <ol id="user-list" class="user-list"></ol>
+    </div>
+
+    <script>
+      fetch("http://localhost:5000/registrations")
+        .then((res) => res.json())
+        .then((data) => {
+          const list = document.getElementById("user-list");
+          data.forEach((user, index) => {
+            const li = document.createElement("li");
+            li.innerHTML = `<span class="badge">${index + 1}</span> 
+                            <strong>${user.firstName} ${user.lastName}</strong> 
+                            <span class="nickname">(${user.nickName})</span>`;
+            li.classList.add("user-item");
+            li.onclick = () => {
+              window.open(`user-detail.html?id=${user._id}`, "_blank");
+            };
+            list.appendChild(li);
+          });
+        })
+        .catch((err) => {
+          console.error("Error fetching users:", err);
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login - SPL Season 2025</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f5f7fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .login-container {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      label {
+        margin-top: 10px;
+        font-weight: 500;
+        display: block;
+        color: #444;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 12px 14px;
+        margin: 8px 0 16px;
+        font-size: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        transition: border 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        border-color: #4a90e2;
+        box-shadow: 0 0 6px rgba(74, 144, 226, 0.3);
+        outline: none;
+      }
+
+      input[type="submit"] {
+        width: 100%;
+        background-color: #4a90e2;
+        color: #fff;
+        padding: 12px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #357abd;
+        transform: translateY(-2px);
+      }
+
+      .error {
+        color: #d8000c;
+        background-color: #ffbaba;
+        padding: 10px;
+        border-radius: 6px;
+        margin-top: 10px;
+        font-size: 14px;
+        display: none;
+      }
+
+      @media (max-width: 500px) {
+        .login-container {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h2>Admin Login</h2>
+      <form id="loginForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" required />
+        <label for="password">Password:</label>
+        <input type="password" id="password" required />
+        <input type="submit" value="Login" />
+        <p class="error" id="errorMsg"></p>
+      </form>
+    </div>
+
+    <script>
+      const form = document.getElementById("loginForm");
+      const errorMsg = document.getElementById("errorMsg");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        if (username === "admin" && password === "yourpassword") {
+          window.location.href = "admin.html";
+        } else {
+          errorMsg.textContent = "Invalid username or password!";
+          errorMsg.style.display = "block";
+        }
+      });
+    </script>
+  </body>
+</html>
