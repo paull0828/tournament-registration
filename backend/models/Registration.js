@@ -7,6 +7,7 @@ const registrationSchema = new mongoose.Schema(
     lastName: String,
     nickName: String,
     phone: String,
+    jerseySize: String,
     role: String,
     paymentMethod: String,
     playerType: String,

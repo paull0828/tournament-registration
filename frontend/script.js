@@ -64,7 +64,7 @@ form.addEventListener("submit", function (e) {
     .then((data) => {
       // Display success message
       document.getElementById("successMsg").textContent = data.message;
-      alert(data.message);
+      alert("Registration successful!");
       form.reset();
       feeMsg.textContent = "";
       qrImage.style.display = "none";
