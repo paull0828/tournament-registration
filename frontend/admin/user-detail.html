@@ -94,42 +94,42 @@
       const details = document.getElementById("details");
 
       if (id) {
-        fetch(`http://localhost:5000/registrations/${id}`)
+        fetch(
+          `https://tournament-registration-1.onrender.com/registrations/${id}`
+        )
           .then((res) => res.json())
           .then((user) => {
             details.innerHTML = `
-            <div class="value"><span class="label">First Name:</span> ${
-              user.firstName
-            }</div>
-            <div class="value"><span class="label">Last Name:</span> ${
-              user.lastName
-            }</div>
-            <div class="value"><span class="label">Nick Name:</span> ${
-              user.nickName
-            }</div>
-            <div class="value"><span class="label">Phone:</span> ${
-              user.phone
-            }</div>
-            <div class="value"><span class="label">Role:</span> ${
-              user.role
-            }</div>
-            <div class="value"><span class="label">Payment Method:</span> ${
-              user.paymentMethod
-            }</div>
-            <div class="value"><span class="label">Player Type:</span> ${
-              user.playerType
-            }</div>
-            <div class="value"><span class="label">Status:</span> ${
-              user.status
-            }</div>
-            <div class="value"><span class="label">Receipt:</span> 
-              ${
-                user.receipt
-                  ? `<a href="http://localhost:5000/${user.receipt}" target="_blank">View Receipt</a>`
-                  : "N/A"
-              }
-            </div>
-          `;
+          <div class="value"><span class="label">First Name:</span> ${
+            user.firstName
+          }</div>
+          <div class="value"><span class="label">Last Name:</span> ${
+            user.lastName
+          }</div>
+          <div class="value"><span class="label">Nick Name:</span> ${
+            user.nickName
+          }</div>
+          <div class="value"><span class="label">Phone:</span> ${
+            user.phone
+          }</div>
+          <div class="value"><span class="label">Role:</span> ${user.role}</div>
+          <div class="value"><span class="label">Payment Method:</span> ${
+            user.paymentMethod
+          }</div>
+          <div class="value"><span class="label">Player Type:</span> ${
+            user.playerType
+          }</div>
+          <div class="value"><span class="label">Status:</span> ${
+            user.status
+          }</div>
+          <div class="value"><span class="label">Receipt:</span> 
+            ${
+              user.receipt
+                ? `<a href="https://tournament-registration-1.onrender.com/${user.receipt}" target="_blank">View Receipt</a>`
+                : "N/A"
+            }
+          </div>
+        `;
           })
           .catch(() => {
             details.textContent = "User not found.";

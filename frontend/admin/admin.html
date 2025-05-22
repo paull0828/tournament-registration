@@ -13,15 +13,19 @@
     </div>
 
     <script>
-      fetch("http://localhost:5000/registrations")
+      fetch("https://tournament-registration-1.onrender.com/api/users")
         .then((res) => res.json())
         .then((data) => {
           const list = document.getElementById("user-list");
           data.forEach((user, index) => {
             const li = document.createElement("li");
-            li.innerHTML = `<span class="badge">${index + 1}</span> 
-                            <strong>${user.firstName} ${user.lastName}</strong> 
-                            <span class="nickname">(${user.nickName})</span>`;
+            li.innerHTML = `<span class="badge">${index + 1}</span>
+                                  <strong>${user.firstName} ${
+              user.lastName
+            }</strong>
+                                  <span class="nickname">(${
+                                    user.nickName
+                                  })</span>`;
             li.classList.add("user-item");
             li.onclick = () => {
               window.open(`user-detail.html?id=${user._id}`, "_blank");
