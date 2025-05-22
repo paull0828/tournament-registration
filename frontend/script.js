@@ -56,7 +56,7 @@ form.addEventListener("submit", function (e) {
   if (receipt) formData.append("receipt", receipt);
 
   // Send data to the backend
-  fetch("https://tournament-registration-1.onrender.com", {
+  fetch("https://tournament-registration-2.onrender.com/register", {
     method: "POST",
     body: formData,
   })

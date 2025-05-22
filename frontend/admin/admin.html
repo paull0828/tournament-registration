@@ -13,7 +13,7 @@
     </div>
 
     <script>
-      fetch("https://tournament-registration-1.onrender.com/api/users")
+      fetch("https://tournament-registration-2.onrender.com/registrations")
         .then((res) => res.json())
         .then((data) => {
           const list = document.getElementById("user-list");
@@ -24,7 +24,7 @@
                         <span class="nickname">(${user.nickName})</span>`;
             li.classList.add("user-item");
             li.onclick = () => {
-              window.open(`/admin/user-detail.html?id=${user._id}`, "_blank");
+              window.open(`user-detail.html?id=${user._id}`, "_blank");
             };
             list.appendChild(li);
           });
