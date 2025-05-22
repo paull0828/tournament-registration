@@ -115,3 +115,12 @@ app.get("/registrations/:id", async (req, res) => {
     res.status(500).send({ message: "Failed to fetch user." });
   }
 });
+// Delete registration by ID
+app.delete("/registrations/:id", async (req, res) => {
+  try {
+    await Registration.findByIdAndDelete(req.params.id);
+    res.status(200).send({ message: "User deleted successfully." });
+  } catch (error) {
+    res.status(500).send({ message: "Failed to delete user." });
+  }
+});
