@@ -5,54 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin - User List</title>
     <link rel="stylesheet" href="adminStyles.css" />
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   </head>
   <body>
     <div class="container">
       <h1>Registered Players</h1>
+      <button id="downloadExcel" class="download-btn">Download Excel</button>
       <ol id="user-list" class="user-list"></ol>
     </div>
 
-   <script>
-fetch("https://tournament-registration-2.onrender.com/registrations")
-  .then((res) => res.json())
-  .then((data) => {
-    const list = document.getElementById("user-list");
-    data.forEach((user, index) => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <span class="badge">${index + 1}</span>
-        <strong>${user.firstName} ${user.lastName}</strong>
-        <span class="nickname">(${user.nickName})</span>
-        <button class="delete-btn">Delete</button>
-      `;
-      li.classList.add("user-item");
-      li.onclick = (e) => {
-        // Prevent opening detail if delete button is clicked
-        if (e.target.classList.contains("delete-btn")) return;
-        window.open(`user-detail.html?id=${user._id}`, "_blank");
+    <script>
+      let usersData = []; // Store users globally
+
+      function renderUserList(data) {
+        usersData = data;
+        const list = document.getElementById("user-list");
+        list.innerHTML = "";
+        data.forEach((user, index) => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+      <span class="badge">${index + 1}</span>
+      <strong>${user.firstName} ${user.lastName}</strong>
+      <span class="nickname">(${user.nickName})</span>
+      <button class="delete-btn">Delete</button>
+    `;
+          li.classList.add("user-item");
+          li.onclick = (e) => {
+            if (e.target.classList.contains("delete-btn")) return;
+            window.open(`user-detail.html?id=${user._id}`, "_blank");
+          };
+          li.querySelector(".delete-btn").onclick = function (e) {
+            e.stopPropagation();
+            if (confirm("Are you sure you want to delete this user?")) {
+              fetch(
+                `https://tournament-registration-2.onrender.com/registrations/${user._id}`,
+                {
+                  method: "DELETE",
+                }
+              )
+                .then((res) => {
+                  if (res.ok) {
+                    li.remove();
+                    usersData = usersData.filter((u) => u._id !== user._id);
+                  } else {
+                    alert("Failed to delete user.");
+                  }
+                })
+                .catch(() => alert("Failed to delete user."));
+            }
+          };
+          list.appendChild(li);
+        });
+      }
+
+      fetch("https://tournament-registration-2.onrender.com/registrations")
+        .then((res) => res.json())
+        .then(renderUserList)
+        .catch((err) => {
+          console.error("Error fetching users:", err);
+        });
+
+      // Download Excel functionality
+      document.getElementById("downloadExcel").onclick = function () {
+        const exportData = usersData.map((user) => ({
+          Username: `${user.firstName} ${user.lastName}`,
+          Nickname: user.nickName,
+          "Jersey Size": user.jerseySize,
+        }));
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Players");
+        XLSX.writeFile(wb, "RegisteredPlayers.xlsx");
       };
-      li.querySelector(".delete-btn").onclick = function (e) {
-        e.stopPropagation();
-        if (confirm("Are you sure you want to delete this user?")) {
-          fetch(`https://tournament-registration-2.onrender.com/registrations/${user._id}`, {
-            method: "DELETE",
-          })
-            .then((res) => {
-              if (res.ok) {
-                li.remove();
-              } else {
-                alert("Failed to delete user.");
-              }
-            })
-            .catch(() => alert("Failed to delete user."));
-        }
-      };
-      list.appendChild(li);
-    });
-  })
-  .catch((err) => {
-    console.error("Error fetching users:", err);
-  });
-</script>
+    </script>
   </body>
 </html>
