@@ -64,13 +64,14 @@
         .catch((err) => {
           console.error("Error fetching users:", err);
         });
+      console.log(usersData);
 
       // Download Excel functionality
       document.getElementById("downloadExcel").onclick = function () {
         const exportData = usersData.map((user) => ({
           Username: `${user.firstName} ${user.lastName}`,
           Nickname: user.nickName,
-          "Jersey Size": user.jerseySize,
+          "Jersey Size": user.jerseySize || "",
         }));
         const ws = XLSX.utils.json_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
