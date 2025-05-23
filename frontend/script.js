@@ -45,11 +45,14 @@ form.addEventListener("submit", function (e) {
   const receipt = receiptUpload.files[0];
 
   // Create FormData object to send the form data, including the file
+
   const formData = new FormData();
   formData.append("firstName", firstName);
   formData.append("lastName", lastName);
   formData.append("nickName", nickName);
   formData.append("phone", phone);
+  const jerseySize = document.getElementById("jerseySize").value;
+  formData.append("jerseySize", jerseySize);
   formData.append("role", role);
   formData.append("paymentMethod", paymentMethod);
   formData.append("playerType", playerType);
