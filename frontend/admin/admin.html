@@ -10,7 +10,9 @@
   <body>
     <div class="container">
       <h1>Registered Players</h1>
-      <button id="downloadExcel" class="download-btn">Download Excel</button>
+      <button id="downloadExcel" class="download-btn" disabled>
+        Download Excel
+      </button>
       <ol id="user-list" class="user-list"></ol>
     </div>
 
@@ -24,11 +26,11 @@
         data.forEach((user, index) => {
           const li = document.createElement("li");
           li.innerHTML = `
-      <span class="badge">${index + 1}</span>
-      <strong>${user.firstName} ${user.lastName}</strong>
-      <span class="nickname">(${user.nickName})</span>
-      <button class="delete-btn">Delete</button>
-    `;
+        <span class="badge">${index + 1}</span>
+        <strong>${user.firstName} ${user.lastName}</strong>
+        <span class="nickname">(${user.nickName})</span>
+        <button class="delete-btn">Delete</button>
+      `;
           li.classList.add("user-item");
           li.onclick = (e) => {
             if (e.target.classList.contains("delete-btn")) return;
@@ -60,19 +62,39 @@
 
       fetch("https://tournament-registration-2.onrender.com/registrations")
         .then((res) => res.json())
-        .then(renderUserList)
+        .then((data) => {
+          console.log("Fetched users:", data);
+          renderUserList(data);
+          document.getElementById("downloadExcel").disabled = false; // enable after load
+        })
         .catch((err) => {
           console.error("Error fetching users:", err);
         });
-      console.log(usersData);
 
       // Download Excel functionality
       document.getElementById("downloadExcel").onclick = function () {
-        const exportData = usersData.map((user) => ({
-          Username: `${user.firstName} ${user.lastName}`,
-          Nickname: user.nickName,
-          "Jersey Size": user.jerseySize || "",
-        }));
+        console.log("Original usersData from backend:", usersData);
+        usersData.forEach((user, i) => {
+          console.log(
+            `User ${i + 1}:`,
+            user.firstName,
+            user.lastName,
+            "Jersey Size:",
+            user.jerseySize
+          );
+        });
+
+        const exportData = usersData.map((user) => {
+          console.log("Inspecting user:", user); // 👀 look here in the browser console
+          return {
+            Username: `${user.firstName} ${user.lastName}`,
+            Nickname: user.nickName,
+            "Jersey Size": user.jerseySize || "N/A",
+          };
+        });
+
+        console.log("Exporting this data:", exportData);
+
         const ws = XLSX.utils.json_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Players");

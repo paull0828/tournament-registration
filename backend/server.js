@@ -96,9 +96,7 @@ app.listen(PORT, () => {
 app.get("/registrations", async (req, res) => {
   try {
     // Only select firstName, lastName, and nickName fields
-    const registrations = await Registration.find().select(
-      "firstName lastName nickName"
-    );
+    const registrations = await Registration.find({}); // return full user object
     res.json(registrations);
   } catch (error) {
     res.status(500).send({ message: "Failed to fetch registrations." });
