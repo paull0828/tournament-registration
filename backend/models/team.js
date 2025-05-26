@@ -31,22 +31,25 @@ const teamSchema = new mongoose.Schema(
   }
 );
 
-// Optional: validate players array length to be exactly 11
+// Validate players array length to be exactly 11 and captain/viceCaptain conditions
 teamSchema.pre("validate", function (next) {
   if (this.players.length !== 11) {
-    next(new Error("A team must have exactly 11 players."));
-  } else if (
-    !this.players.includes(this.captain) ||
-    !this.players.includes(this.viceCaptain)
+    return next(new Error("A team must have exactly 11 players."));
+  }
+  if (
+    !this.players.some((p) => p.toString() === this.captain.toString()) ||
+    !this.players.some((p) => p.toString() === this.viceCaptain.toString())
   ) {
-    next(
+    return next(
       new Error("Captain and Vice Captain must be among the selected players.")
     );
-  } else if (this.captain.toString() === this.viceCaptain.toString()) {
-    next(new Error("Captain and Vice Captain must be different players."));
-  } else {
-    next();
   }
+  if (this.captain.toString() === this.viceCaptain.toString()) {
+    return next(
+      new Error("Captain and Vice Captain must be different players.")
+    );
+  }
+  next();
 });
 
 module.exports = mongoose.model("Team", teamSchema);

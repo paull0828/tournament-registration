@@ -1,28 +1,89 @@
 const express = require("express");
 const router = express.Router();
-const Registration = require("../models/Registration");
-const Team = require("../models/team"); // This import was missing
+const Team = require("../models/team");
 
-// Get unassigned players
-router.get("/unassigned-players", async (req, res) => {
+// Create a new team
+router.post("/create", async (req, res) => {
   try {
-    const allPlayers = await Registration.find({});
-    const allTeams = await Team.find({});
-    const assignedPlayerIds = new Set();
+    const { teamName, players, captain, viceCaptain } = req.body;
 
-    allTeams.forEach((team) => {
-      team.players.forEach((playerId) =>
-        assignedPlayerIds.add(playerId.toString())
-      );
+    if (!teamName || !players || !captain || !viceCaptain) {
+      return res.status(400).json({ message: "Missing required fields." });
+    }
+
+    // Make sure players is an array
+    if (!Array.isArray(players)) {
+      return res.status(400).json({ message: "Players must be an array." });
+    }
+
+    const newTeam = new Team({
+      teamName,
+      players,
+      captain,
+      viceCaptain,
     });
 
-    const unassignedPlayers = allPlayers.filter(
-      (p) => !assignedPlayerIds.has(p._id.toString())
-    );
-    res.json(unassignedPlayers);
-  } catch (err) {
-    console.error("Error fetching unassigned players:", err);
-    res.status(500).json({ message: "Error fetching unassigned players" });
+    await newTeam.save();
+
+    res
+      .status(201)
+      .json({ message: "Team created successfully.", team: newTeam });
+  } catch (error) {
+    console.error("Error creating team:", error);
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ message: error.message });
+    }
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Team name already exists." });
+    }
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// Get all teams
+router.get("/", async (req, res) => {
+  try {
+    const teams = await Team.find()
+      .populate("players", "firstName lastName nickName") // adjust fields as per Registration schema
+      .populate("captain", "firstName lastName nickName")
+      .populate("viceCaptain", "firstName lastName nickName");
+    res.json(teams);
+  } catch (error) {
+    console.error("Error fetching teams:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// Get a single team by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const team = await Team.findById(req.params.id)
+      .populate("players", "firstName lastName nickName")
+      .populate("captain", "firstName lastName nickName")
+      .populate("viceCaptain", "firstName lastName nickName");
+
+    if (!team) {
+      return res.status(404).json({ message: "Team not found." });
+    }
+
+    res.json(team);
+  } catch (error) {
+    console.error("Error fetching team:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// Delete a team by ID
+router.delete("/:id", async (req, res) => {
+  try {
+    const deleted = await Team.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Team not found." });
+    }
+    res.json({ message: "Team deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting team:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 
