@@ -1,57 +1,65 @@
-// Import models
 const express = require("express");
 const router = express.Router();
-const Registration = require("../models/registration"); // Your player schema
-const Team = require("../models/teamModels"); // Your team schema
+const Team = require("../models/teamModels");
+const Registration = require("../models/registration");
 
-// ✅ API to get players who are NOT assigned to any team
-router.get("/unassigned-players", async (req, res) => {
+router.post("/api/teams/create", async (req, res) => {
   try {
-    // Get all player IDs who are already in a team
-    const teams = await Team.find({}, "players");
-    const assignedIds = teams.flatMap((team) =>
-      team.players.map((p) => p.toString())
-    );
+    const { teamName, playerIds, captain, viceCaptain } = req.body;
 
-    // Get only those players not in any team
-    const unassignedPlayers = await Registration.find({
-      _id: { $nin: assignedIds },
-    }).select("firstName lastName nickName");
-
-    res.json(unassignedPlayers);
-  } catch (err) {
-    console.error("Error getting unassigned players:", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-router.post("/create", async (req, res) => {
-  try {
-    const { teamName, managerName, players } = req.body;
-
-    // 1. Check for duplicate player use
-    const alreadyAssigned = await Team.find({
-      players: { $in: players },
-    });
-
-    if (alreadyAssigned.length > 0) {
-      return res
-        .status(400)
-        .json({ message: "Some players are already assigned to a team." });
+    if (
+      !teamName ||
+      !playerIds ||
+      !Array.isArray(playerIds) ||
+      playerIds.length !== 11 // must be exactly 11 now
+    ) {
+      return res.status(400).json({
+        message: "Missing required fields or exactly 11 players required",
+      });
     }
 
-    // 2. Create team if all players are unassigned
+    if (!captain || !viceCaptain) {
+      return res
+        .status(400)
+        .json({ message: "Captain and Vice Captain must be specified" });
+    }
+
+    // Check if players exist
+    const players = await Player.find({ _id: { $in: playerIds } });
+    if (players.length !== playerIds.length) {
+      return res.status(400).json({ message: "Some players not found" });
+    }
+
+    // Check captain and viceCaptain are in playerIds array
+    if (
+      !playerIds.includes(captain) ||
+      !playerIds.includes(viceCaptain) ||
+      captain === viceCaptain
+    ) {
+      return res.status(400).json({
+        message:
+          "Captain and Vice Captain must be different and among the selected players",
+      });
+    }
+
+    // Create team document
     const newTeam = new Team({
       teamName,
-      managerName,
-      players,
+      players: playerIds,
+      captain,
+      viceCaptain,
     });
 
     await newTeam.save();
-    res.status(201).json({ message: "Team created successfully!" });
-  } catch (err) {
-    console.error("Error creating team:", err);
-    res.status(500).json({ message: "Internal server error" });
+
+    return res
+      .status(201)
+      .json({ message: "Team created successfully", team: newTeam });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 });
 module.exports = router;

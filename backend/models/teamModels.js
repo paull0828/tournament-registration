@@ -8,6 +8,10 @@ const teamSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    logoUrl: {
+      type: String,
+      trim: true,
+    },
     players: [
       {
         type: mongoose.Schema.Types.ObjectId,
