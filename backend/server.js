@@ -13,7 +13,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.get("/healthz", (req, res) => res.send("OK"));
 app.use("/api/teams", teamRouter);
-app.use("/api/teams", require("./routes/teamRouter"));
 
 // MongoDB connection
 const dbURI =
