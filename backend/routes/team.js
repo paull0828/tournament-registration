@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Registration = require("../models/Registration");
-const Team = require("../models/Team"); // This import was missing
+const Team = require("../models/team"); // This import was missing
 
 // Get unassigned players
 router.get("/unassigned-players", async (req, res) => {
