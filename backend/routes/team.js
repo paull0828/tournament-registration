@@ -1,111 +1,57 @@
+// Import models
 const express = require("express");
 const router = express.Router();
-const Team = require("../models/teamModels");
-const Registration = require("../models/registration");
+const Registration = require("../models/registration"); // Your player schema
+const Team = require("../models/teamModels"); // Your team schema
 
-// Create a new team
+// ✅ API to get players who are NOT assigned to any team
+router.get("/unassigned-players", async (req, res) => {
+  try {
+    // Get all player IDs who are already in a team
+    const teams = await Team.find({}, "players");
+    const assignedIds = teams.flatMap((team) =>
+      team.players.map((p) => p.toString())
+    );
+
+    // Get only those players not in any team
+    const unassignedPlayers = await Registration.find({
+      _id: { $nin: assignedIds },
+    }).select("firstName lastName nickName");
+
+    res.json(unassignedPlayers);
+  } catch (err) {
+    console.error("Error getting unassigned players:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 router.post("/create", async (req, res) => {
   try {
-    const { teamName, players, captain, viceCaptain } = req.body;
+    const { teamName, managerName, players } = req.body;
 
-    if (!teamName || !players || !captain || !viceCaptain) {
-      return res.status(400).json({ message: "Missing required fields." });
+    // 1. Check for duplicate player use
+    const alreadyAssigned = await Team.find({
+      players: { $in: players },
+    });
+
+    if (alreadyAssigned.length > 0) {
+      return res
+        .status(400)
+        .json({ message: "Some players are already assigned to a team." });
     }
 
-    if (!Array.isArray(players)) {
-      return res.status(400).json({ message: "Players must be an array." });
-    }
-
+    // 2. Create team if all players are unassigned
     const newTeam = new Team({
       teamName,
+      managerName,
       players,
-      captain,
-      viceCaptain,
     });
 
     await newTeam.save();
-
-    res
-      .status(201)
-      .json({ message: "Team created successfully.", team: newTeam });
-  } catch (error) {
-    console.error("Error creating team:", error);
-    if (error.name === "ValidationError") {
-      return res.status(400).json({ message: error.message });
-    }
-    if (error.code === 11000) {
-      return res.status(400).json({ message: "Team name already exists." });
-    }
-    res.status(500).json({ message: "Internal server error." });
+    res.status(201).json({ message: "Team created successfully!" });
+  } catch (err) {
+    console.error("Error creating team:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
-
-// Get all teams
-router.get("/", async (req, res) => {
-  try {
-    const teams = await Team.find()
-      .populate("players", "firstName lastName nickName")
-      .populate("captain", "firstName lastName nickName")
-      .populate("viceCaptain", "firstName lastName nickName");
-    res.json(teams);
-  } catch (error) {
-    console.error("Error fetching teams:", error);
-    res.status(500).json({ message: "Internal server error." });
-  }
-});
-
-// Get a single team by ID
-router.get("/:id", async (req, res) => {
-  try {
-    const team = await Team.findById(req.params.id)
-      .populate("players", "firstName lastName nickName")
-      .populate("captain", "firstName lastName nickName")
-      .populate("viceCaptain", "firstName lastName nickName");
-
-    if (!team) {
-      return res.status(404).json({ message: "Team not found." });
-    }
-
-    res.json(team);
-  } catch (error) {
-    console.error("Error fetching team:", error);
-    res.status(500).json({ message: "Internal server error." });
-  }
-});
-
-// Delete a team by ID
-router.delete("/:id", async (req, res) => {
-  try {
-    const deleted = await Team.findByIdAndDelete(req.params.id);
-    if (!deleted) {
-      return res.status(404).json({ message: "Team not found." });
-    }
-    res.json({ message: "Team deleted successfully." });
-  } catch (error) {
-    console.error("Error deleting team:", error);
-    res.status(500).json({ message: "Internal server error." });
-  }
-});
-
-// New route: Get unassigned players (players not assigned to any team)
-router.get("/unassigned-players", async (req, res) => {
-  try {
-    // Get all player IDs assigned to teams
-    const teams = await Team.find({}, "players");
-    const assignedPlayerIds = teams.flatMap((team) =>
-      team.players.map((id) => id.toString())
-    );
-
-    // Find players not assigned to any team
-    const unassignedPlayers = await Registration.find({
-      _id: { $nin: assignedPlayerIds },
-    }).select("firstName lastName nickName"); // Select relevant fields
-
-    res.json(unassignedPlayers);
-  } catch (error) {
-    console.error("Error fetching unassigned players:", error);
-    res.status(500).json({ message: "Internal server error." });
-  }
-});
-
 module.exports = router;
