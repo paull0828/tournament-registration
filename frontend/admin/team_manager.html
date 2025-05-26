@@ -161,12 +161,6 @@
             placeholder="Enter team name"
             required
           />
-          <!-- Optional: Show dropdown just for selection/demo -->
-          <label for="playerDropdown">Choose a player:</label>
-          <select id="playerDropdown">
-            <option value="">-- Select Player --</option>
-          </select>
-
           <!-- Player checkboxes -->
           <div id="playerListContainer"></div>
           <!-- Captain & Vice-Captain selectors -->
@@ -333,7 +327,7 @@
       loadTeams();
       async function loadDropdownPlayers() {
         try {
-          const response = awaitfetch(
+          const response = await fetch(
             "https://tournament-registration-2.onrender.com/api/teams/unassigned-players"
           );
 
