@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const Team = require("../models/team");
+const Team = require("../models/teamModels");
+const Registration = require("../models/registration");
 
 // Create a new team
 router.post("/create", async (req, res) => {
@@ -90,7 +91,10 @@ router.delete("/:id", async (req, res) => {
 router.get("/unassigned-players", async (req, res) => {
   try {
     // Get all player IDs assigned to teams
-    const assignedPlayerIds = await Team.find().distinct("players");
+    const teams = await Team.find({}, "players");
+    const assignedPlayerIds = teams.flatMap((team) =>
+      team.players.map((id) => id.toString())
+    );
 
     // Find players not assigned to any team
     const unassignedPlayers = await Registration.find({
