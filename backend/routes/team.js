@@ -2,7 +2,6 @@
 const express = require("express");
 const router = express.Router();
 const Registration = require("../models/registration");
-const Team = require("../models/team");
 
 // Get unassigned players
 router.get("/unassigned-players", async (req, res) => {

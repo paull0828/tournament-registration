@@ -11,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.get("/healthz", (req, res) => res.send("OK"));
-app.use("/api/teams", require("./routes/teams"));
+app.use("/api/teams", require("./routes/team"));
 
 // MongoDB connection
 const dbURI =
