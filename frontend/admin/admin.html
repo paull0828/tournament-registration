@@ -13,6 +13,8 @@
       <button id="downloadExcel" class="download-btn" disabled>
         Download Excel
       </button>
+      <button id="teamManagerBtn" class="download-btn">Team Manager</button>
+
       <ol id="user-list" class="user-list"></ol>
     </div>
 
@@ -99,6 +101,10 @@
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Players");
         XLSX.writeFile(wb, "RegisteredPlayers.xlsx");
+      };
+
+      document.getElementById("teamManagerBtn").onclick = () => {
+        window.location.href = "team_manager.html";
       };
     </script>
   </body>

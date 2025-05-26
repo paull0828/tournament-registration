@@ -11,6 +11,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.get("/healthz", (req, res) => res.send("OK"));
+app.use("/api/teams", require("./routes/teams"));
 
 // MongoDB connection
 const dbURI =
@@ -37,9 +38,6 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
-
-// Registration model
-const Registration = require("./models/Registration");
 
 // Serve uploaded images statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

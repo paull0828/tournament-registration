@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Team Manager</title>
+    <link rel="stylesheet" href="adminStyles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        background: #f2f5fa;
+        color: #333;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: auto;
+        padding: 30px;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #1e3a8a;
+      }
+
+      .btn {
+        background-color: #1e3a8a;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s ease;
+      }
+
+      .btn:hover {
+        background-color: #2563eb;
+      }
+
+      .team-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .team-card h3 {
+        margin-top: 0;
+        color: #0f172a;
+      }
+
+      .team-card ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .team-card li {
+        padding: 6px 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      .modal-content h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #1e40af;
+      }
+
+      .modal-content input,
+      .modal-content select {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+      }
+
+      .modal-content .player-checkbox {
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+      }
+
+      .modal-content .player-checkbox input {
+        margin-right: 10px;
+      }
+
+      .close-btn {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        font-size: 20px;
+        cursor: pointer;
+        color: #aaa;
+      }
+
+      .close-btn:hover {
+        color: #333;
+      }
+
+      .disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Team Manager</h1>
+      <button id="openTeamModal" class="btn">+ Create New Team</button>
+      <div id="teamList"></div>
+    </div>
+
+    <!-- Modal -->
+    <div id="teamModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" id="closeTeamModal">&times;</span>
+        <h2>Create New Team</h2>
+        <form id="createTeamForm">
+          <input
+            type="text"
+            id="teamName"
+            placeholder="Enter team name"
+            required
+          />
+          <div id="playerListContainer"></div>
+          <button type="submit" class="btn" id="submitBtn">Create Team</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const modal = document.getElementById("teamModal");
+      const openModalBtn = document.getElementById("openTeamModal");
+      const closeModalBtn = document.getElementById("closeTeamModal");
+      const playerListContainer = document.getElementById(
+        "playerListContainer"
+      );
+
+      openModalBtn.onclick = () => {
+        modal.classList.add("active");
+        fetchUnassignedPlayers();
+      };
+
+      closeModalBtn.onclick = () => modal.classList.remove("active");
+      window.onclick = (e) => {
+        if (e.target === modal) modal.classList.remove("active");
+      };
+
+      async function fetchUnassignedPlayers() {
+        const res = await fetch(
+          "https://tournament-registration-2.onrender.com/api/teams/unassigned-players"
+        );
+        const players = await res.json();
+        playerListContainer.innerHTML = "";
+
+        players.forEach((p) => {
+          const div = document.createElement("div");
+          div.className = "player-checkbox";
+          div.innerHTML = `
+          <input type="checkbox" name="players" value="${p._id}">
+          <label>${p.firstName} ${p.lastName} (${p.nickName})</label>
+        `;
+          playerListContainer.appendChild(div);
+        });
+      }
+
+      document.getElementById("createTeamForm").onsubmit = async function (e) {
+        e.preventDefault();
+        const teamName = document.getElementById("teamName").value.trim();
+        const selectedPlayers = Array.from(
+          document.querySelectorAll('input[name="players"]:checked')
+        ).map((p) => p.value);
+
+        if (selectedPlayers.length !== 11) {
+          alert("You must select exactly 11 players.");
+          return;
+        }
+
+        const res = await fetch(
+          "https://tournament-registration-2.onrender.com/api/teams/create",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ teamName, playerIds: selectedPlayers }),
+          }
+        );
+
+        const result = await res.json();
+        if (res.ok) {
+          alert("Team created!");
+          modal.classList.remove("active");
+          loadTeams();
+        } else {
+          alert(result.message || "Failed to create team.");
+        }
+      };
+
+      async function loadTeams() {
+        const res = await fetch(
+          "https://tournament-registration-2.onrender.com/api/teams"
+        );
+        const teams = await res.json();
+        const teamList = document.getElementById("teamList");
+        teamList.innerHTML = "";
+
+        teams.forEach((team) => {
+          const div = document.createElement("div");
+          div.className = "team-card";
+          div.innerHTML = `
+          <h3>${team.teamName}</h3>
+          <ul>
+            ${team.players
+              .map(
+                (p) => `<li>${p.firstName} ${p.lastName} (${p.nickName})</li>`
+              )
+              .join("")}
+          </ul>
+        `;
+          teamList.appendChild(div);
+        });
+
+        if (teams.length >= 4) {
+          openModalBtn.disabled = true;
+          openModalBtn.classList.add("disabled");
+          openModalBtn.innerText = "Max 4 Teams Created";
+        }
+      }
+
+      loadTeams();
+    </script>
+  </body>
+</html>
