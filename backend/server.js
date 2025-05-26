@@ -5,7 +5,6 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
-const Registration = require("../backend/models/Registration");
 
 // Initialize the app
 const app = express();
