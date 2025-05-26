@@ -1,7 +1,7 @@
-// routes/teams.js
 const express = require("express");
 const router = express.Router();
-const Registration = require("../models/registration");
+const Registration = require("../models/Registration");
+const Team = require("../models/Team"); // This import was missing
 
 // Get unassigned players
 router.get("/unassigned-players", async (req, res) => {
@@ -21,6 +21,7 @@ router.get("/unassigned-players", async (req, res) => {
     );
     res.json(unassignedPlayers);
   } catch (err) {
+    console.error("Error fetching unassigned players:", err);
     res.status(500).json({ message: "Error fetching unassigned players" });
   }
 });

@@ -134,6 +134,12 @@
         background-color: #ccc;
         cursor: not-allowed;
       }
+      #playerListContainer {
+        border: 1px dashed #ccc;
+        padding: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
     </style>
   </head>
   <body>
@@ -155,8 +161,24 @@
             placeholder="Enter team name"
             required
           />
+          <!-- Optional: Show dropdown just for selection/demo -->
+          <label for="playerDropdown">Choose a player:</label>
+          <select id="playerDropdown">
+            <option value="">-- Select Player --</option>
+          </select>
+
+          <!-- Player checkboxes -->
           <div id="playerListContainer"></div>
-          <button type="submit" class="btn" id="submitBtn">Create Team</button>
+          <!-- Captain & Vice-Captain selectors -->
+          <select id="captainSelect" required disabled>
+            <option value="">Select Captain</option>
+          </select>
+          <select id="viceCaptainSelect" required disabled>
+            <option value="">Select Vice Captain</option>
+          </select>
+          <button type="submit" class="btn disabled" id="submitBtn" disabled>
+            Create Team
+          </button>
         </form>
       </div>
     </div>
@@ -168,6 +190,9 @@
       const playerListContainer = document.getElementById(
         "playerListContainer"
       );
+      const captainSelect = document.getElementById("captainSelect");
+      const viceCaptainSelect = document.getElementById("viceCaptainSelect");
+      const submitBtn = document.getElementById("submitBtn");
 
       openModalBtn.onclick = () => {
         modal.classList.add("active");
@@ -190,12 +215,43 @@
           const div = document.createElement("div");
           div.className = "player-checkbox";
           div.innerHTML = `
-          <input type="checkbox" name="players" value="${p._id}">
-          <label>${p.firstName} ${p.lastName} (${p.nickName})</label>
-        `;
+            <input type="checkbox" name="players" value="${p._id}" data-name="${p.firstName} ${p.lastName} (${p.nickName})">
+            <label>${p.firstName} ${p.lastName} (${p.nickName})</label>
+          `;
           playerListContainer.appendChild(div);
         });
       }
+
+      // Enable and populate Captain/Vice Captains when 11 players selected
+      playerListContainer.addEventListener("change", () => {
+        const selected = Array.from(
+          document.querySelectorAll('input[name="players"]:checked')
+        );
+
+        if (selected.length === 11) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove("disabled");
+
+          captainSelect.disabled = false;
+          viceCaptainSelect.disabled = false;
+          captainSelect.innerHTML = `<option value="">Select Captain</option>`;
+          viceCaptainSelect.innerHTML = `<option value="">Select Vice Captain</option>`;
+
+          selected.forEach((p) => {
+            const name = p.dataset.name;
+            const id = p.value;
+            captainSelect.innerHTML += `<option value="${id}">${name}</option>`;
+            viceCaptainSelect.innerHTML += `<option value="${id}">${name}</option>`;
+          });
+        } else {
+          submitBtn.disabled = true;
+          submitBtn.classList.add("disabled");
+          captainSelect.disabled = true;
+          viceCaptainSelect.disabled = true;
+          captainSelect.innerHTML = `<option value="">Select Captain</option>`;
+          viceCaptainSelect.innerHTML = `<option value="">Select Vice Captain</option>`;
+        }
+      });
 
       document.getElementById("createTeamForm").onsubmit = async function (e) {
         e.preventDefault();
@@ -203,9 +259,19 @@
         const selectedPlayers = Array.from(
           document.querySelectorAll('input[name="players"]:checked')
         ).map((p) => p.value);
+        const captainId = captainSelect.value;
+        const viceCaptainId = viceCaptainSelect.value;
 
         if (selectedPlayers.length !== 11) {
           alert("You must select exactly 11 players.");
+          return;
+        }
+        if (!captainId || !viceCaptainId) {
+          alert("Please select both Captain and Vice Captain.");
+          return;
+        }
+        if (captainId === viceCaptainId) {
+          alert("Captain and Vice Captain must be different.");
           return;
         }
 
@@ -214,7 +280,12 @@
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ teamName, playerIds: selectedPlayers }),
+            body: JSON.stringify({
+              teamName,
+              playerIds: selectedPlayers,
+              captainId,
+              viceCaptainId,
+            }),
           }
         );
 
@@ -240,15 +311,15 @@
           const div = document.createElement("div");
           div.className = "team-card";
           div.innerHTML = `
-          <h3>${team.teamName}</h3>
-          <ul>
-            ${team.players
-              .map(
-                (p) => `<li>${p.firstName} ${p.lastName} (${p.nickName})</li>`
-              )
-              .join("")}
-          </ul>
-        `;
+            <h3>${team.teamName}</h3>
+            <ul>
+              ${team.players
+                .map(
+                  (p) => `<li>${p.firstName} ${p.lastName} (${p.nickName})</li>`
+                )
+                .join("")}
+            </ul>
+          `;
           teamList.appendChild(div);
         });
 
@@ -260,6 +331,38 @@
       }
 
       loadTeams();
+      async function loadDropdownPlayers() {
+        try {
+          const response = awaitfetch(
+            "https://tournament-registration-2.onrender.com/api/teams/unassigned-players"
+          );
+
+          const players = await response.json();
+
+          const dropdown = document.getElementById("playerDropdown");
+          if (!dropdown) return;
+
+          // Clear previous options except first
+          dropdown.length = 1;
+
+          players.forEach((player) => {
+            const option = document.createElement("option");
+            option.value = player._id;
+            option.textContent = `${player.firstName} ${player.lastName} (${player.nickName})`;
+            dropdown.appendChild(option);
+          });
+        } catch (err) {
+          console.error("Error loading dropdown players:", err);
+          alert("Failed to load unassigned players.");
+        }
+      }
+
+      // Load when modal opens
+      openModalBtn.onclick = () => {
+        modal.classList.add("active");
+        fetchUnassignedPlayers(); // your current player list
+        loadDropdownPlayers(); // for the dropdown
+      };
     </script>
   </body>
 </html>
