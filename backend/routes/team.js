@@ -11,7 +11,6 @@ router.post("/create", async (req, res) => {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-    // Make sure players is an array
     if (!Array.isArray(players)) {
       return res.status(400).json({ message: "Players must be an array." });
     }
@@ -44,7 +43,7 @@ router.post("/create", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const teams = await Team.find()
-      .populate("players", "firstName lastName nickName") // adjust fields as per Registration schema
+      .populate("players", "firstName lastName nickName")
       .populate("captain", "firstName lastName nickName")
       .populate("viceCaptain", "firstName lastName nickName");
     res.json(teams);
@@ -83,6 +82,24 @@ router.delete("/:id", async (req, res) => {
     res.json({ message: "Team deleted successfully." });
   } catch (error) {
     console.error("Error deleting team:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// New route: Get unassigned players (players not assigned to any team)
+router.get("/unassigned-players", async (req, res) => {
+  try {
+    // Get all player IDs assigned to teams
+    const assignedPlayerIds = await Team.find().distinct("players");
+
+    // Find players not assigned to any team
+    const unassignedPlayers = await Registration.find({
+      _id: { $nin: assignedPlayerIds },
+    }).select("firstName lastName nickName"); // Select relevant fields
+
+    res.json(unassignedPlayers);
+  } catch (error) {
+    console.error("Error fetching unassigned players:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 });
