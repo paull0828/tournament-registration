@@ -62,4 +62,32 @@ router.post("/api/teams/create", async (req, res) => {
       .json({ message: "Internal Server Error", error: error.message });
   }
 });
+//Get all teams
+router.get("/api/teams", async (req, res) => {
+  try {
+    const teams = await Team.find();
+    res.json(teams);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch teams." });
+  }
+});
+
+// Get unassigned players
+router.get("/api/teams/unassigned-players", async (req, res) => {
+  try {
+    // Find all player IDs assigned to teams
+    const teams = await Team.find();
+    const assignedIds = teams.flatMap((team) =>
+      team.players.map((id) => id.toString())
+    );
+    // Find registrations not in assignedIds
+    const unassigned = await Registration.find({
+      _id: { $nin: assignedIds },
+    });
+    res.json(unassigned);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch unassigned players." });
+  }
+});
+
 module.exports = router;
