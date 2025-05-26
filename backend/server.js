@@ -5,15 +5,13 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
-const teamRouter = require("./routes/team");
-const Registration = require("./models/registration");
+const Registration = require("../backend/models/Registration");
 
 // Initialize the app
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.get("/healthz", (req, res) => res.send("OK"));
-app.use(teamRouter);
 
 // MongoDB connection
 const dbURI =
